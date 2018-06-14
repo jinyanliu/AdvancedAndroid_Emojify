@@ -131,20 +131,66 @@ class BitmapUtils {
 
 
     /**
-     * Helper method for saving the image.
+     * Helper method for saving the emojified image.
      *
      * @param context The application context.
      * @param image   The image to be saved.
      * @return The path of the saved image.
      */
-    static String saveImage(Context context, Bitmap image) {
+    static String saveEmojifiedImage(Context context, Bitmap image) {
 
         String savedImagePath = null;
 
         // Create the new file in the external storage
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
                 Locale.getDefault()).format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + ".jpg";
+        String imageFileName = "JPEG_Emojified" + timeStamp + ".jpg";
+        File storageDir = new File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+                        + "/Emojify");
+        boolean success = true;
+        if (!storageDir.exists()) {
+            success = storageDir.mkdirs();
+        }
+
+        // Save the new Bitmap
+        if (success) {
+            File imageFile = new File(storageDir, imageFileName);
+            savedImagePath = imageFile.getAbsolutePath();
+            try {
+                OutputStream fOut = new FileOutputStream(imageFile);
+                image.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+                fOut.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            // Add the image to the system gallery
+            galleryAddPic(context, savedImagePath);
+
+            // Show a Toast with the save location
+            String savedMessage = context.getString(R.string.saved_message, savedImagePath);
+            Toast.makeText(context, savedMessage, Toast.LENGTH_SHORT).show();
+        }
+
+        return savedImagePath;
+    }
+
+    /**
+     * Helper method for saving the original image.
+     *
+     * @param context The application context.
+     * @param image   The image to be saved.
+     * @return The path of the saved image.
+     */
+    static String saveOriginalImage(Context context, Bitmap image) {
+
+        String savedImagePath = null;
+
+        // Create the new file in the external storage
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
+                Locale.getDefault()).format(new Date());
+        String imageFileName = "JPEG_Original" + timeStamp + ".jpg";
         File storageDir = new File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
                         + "/Emojify");

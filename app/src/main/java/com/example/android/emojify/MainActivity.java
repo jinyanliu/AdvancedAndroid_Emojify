@@ -47,24 +47,31 @@ import timber.log.Timber;
 public class MainActivity extends AppCompatActivity {
 
 
-    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int REQUEST_IMAGE_CAPTURE      = 1;
     private static final int REQUEST_STORAGE_PERMISSION = 1;
 
     private static final String FILE_PROVIDER_AUTHORITY = "com.example.android.fileprovider";
 
-    @BindView(R.id.image_view) ImageView mImageView;
+    @BindView(R.id.image_view)
+    ImageView mImageView;
 
-    @BindView(R.id.emojify_button) Button mEmojifyButton;
-    @BindView(R.id.share_button) FloatingActionButton mShareFab;
-    @BindView(R.id.save_button) FloatingActionButton mSaveFab;
-    @BindView(R.id.clear_button) FloatingActionButton mClearFab;
+    @BindView(R.id.emojify_button)
+    Button               mEmojifyButton;
+    @BindView(R.id.share_button)
+    FloatingActionButton mShareFab;
+    @BindView(R.id.save_button)
+    FloatingActionButton mSaveFab;
+    @BindView(R.id.clear_button)
+    FloatingActionButton mClearFab;
 
-    @BindView(R.id.title_text_view) TextView mTitleTextView;
+    @BindView(R.id.title_text_view)
+    TextView mTitleTextView;
 
     private String mTempPhotoPath;
 
     private Bitmap mResultsBitmap;
 
+    private Bitmap mOriginalBitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
 
             // If you do not have permission, request it
             ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE },
                     REQUEST_STORAGE_PERMISSION);
         } else {
             // Launch the camera if the permission exists
@@ -100,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-            @NonNull int[] grantResults) {
+                                           @NonNull int[] grantResults) {
         // Called when you request permission to read and write to external storage
         switch (requestCode) {
             case REQUEST_STORAGE_PERMISSION: {
@@ -182,11 +189,10 @@ public class MainActivity extends AppCompatActivity {
         mClearFab.setVisibility(View.VISIBLE);
 
         // Resample the saved image to fit the ImageView
-        mResultsBitmap = BitmapUtils.resamplePic(this, mTempPhotoPath);
-
+        mOriginalBitmap = BitmapUtils.resamplePic(this, mTempPhotoPath);
 
         // Detect the faces and overlay the appropriate emoji
-        mResultsBitmap = Emojifier.detectFacesandOverlayEmoji(this, mResultsBitmap);
+        mResultsBitmap = Emojifier.detectFacesandOverlayEmoji(this, mOriginalBitmap);
 
         // Set the new bitmap to the ImageView
         mImageView.setImageBitmap(mResultsBitmap);
@@ -201,8 +207,11 @@ public class MainActivity extends AppCompatActivity {
         // Delete the temporary image file
         BitmapUtils.deleteImageFile(this, mTempPhotoPath);
 
-        // Save the image
-        BitmapUtils.saveImage(this, mResultsBitmap);
+        // Save the original image
+        BitmapUtils.saveOriginalImage(this, mOriginalBitmap);
+
+        // Save the emojified image
+        BitmapUtils.saveEmojifiedImage(this, mResultsBitmap);
     }
 
     /**
@@ -214,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
         BitmapUtils.deleteImageFile(this, mTempPhotoPath);
 
         // Save the image
-        BitmapUtils.saveImage(this, mResultsBitmap);
+        BitmapUtils.saveEmojifiedImage(this, mResultsBitmap);
 
         // Share the image
         BitmapUtils.shareImage(this, mTempPhotoPath);
